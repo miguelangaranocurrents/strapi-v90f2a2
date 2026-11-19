@@ -798,7 +798,19 @@ const RelationModalWithContext = ({
           hasMoreItems={hasNextPage}
           loading={isLoadingSearchRelations || isLoadingPermissions}
           onOpenChange={() => {
-            handleSearch(textValue ?? '');
+            /**
+             * After picking an option the input can still hold that option's label. That text
+             * is not a search, so clear it rather than filtering the remaining options by it.
+             */
+            const connected = fieldValue?.connect ?? [];
+            const lastConnectedLabel = connected[connected.length - 1]?.label;
+            const isSelectedLabel = !!textValue && textValue === lastConnectedLabel;
+
+            if (isSelectedLabel) {
+              setTextValue('');
+            }
+
+            handleSearch(isSelectedLabel ? '' : (textValue ?? ''));
           }}
           noOptionsMessage={() =>
             formatMessage({
